@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StayEase – PG & Co-Living Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow-x:hidden;background:#04020f}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:#fff}
+
+canvas#galaxy{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:0 48px;height:70px;border-bottom:1px solid rgba(160,80,255,0.12);backdrop-filter:blur(20px);background:rgba(4,2,15,0.5)}
+.logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#c084fc;letter-spacing:3px;margin-right:auto}
+.logo span{color:#e879f9}
+.nav-links{display:flex;gap:40px;margin-right:40px}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,0.45);font-size:13px;font-weight:500;letter-spacing:1px;transition:color .3s}
+.nav-links a:hover{color:#e879f9}
+.nav-btn{background:linear-gradient(135deg,#7c3aed,#db2777);border:none;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:.5px;cursor:pointer;font-family:inherit;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(168,85,247,0.35)}
+.nav-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(168,85,247,0.55)}
+
+/* ── HERO SECTION ── */
+.hero{min-height:100vh;padding-top:70px;display:grid;grid-template-columns:1fr 440px 300px;position:relative;z-index:10}
+
+/* LEFT — HUD */
+.hud-wrap{display:flex;align-items:center;justify-content:center;padding:40px}
+#hud{display:block}
+
+/* MIDDLE — copy */
+.copy{display:flex;flex-direction:column;justify-content:center;padding:40px 24px 40px 32px;gap:24px}
+.eyebrow{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:#a855f7;font-weight:600}
+h1{font-family:'Orbitron',monospace;font-size:48px;font-weight:900;line-height:1.05;color:#fff;text-shadow:0 0 60px rgba(168,85,247,0.5)}
+h1 .accent{color:#e879f9;display:block}
+.desc{font-size:14px;line-height:1.8;color:rgba(255,255,255,0.45);max-width:360px}
+.desc strong{color:rgba(255,255,255,0.75);font-weight:500}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:rgba(120,40,200,0.1);border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:16px 18px;transition:border-color .3s}
+.stat:hover{border-color:rgba(168,85,247,0.4)}
+.stat-val{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;color:#e879f9}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-main{background:linear-gradient(135deg,#7c3aed,#db2777);border:none;color:#fff;padding:14px 32px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 24px rgba(168,85,247,0.4)}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(168,85,247,0.6)}
+.btn-ghost{background:transparent;border:1px solid rgba(168,85,247,0.4);color:rgba(255,255,255,0.65);padding:14px 32px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .3s}
+.btn-ghost:hover{border-color:#a855f7;color:#fff;background:rgba(120,40,200,0.15)}
+.dots{display:flex;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(168,85,247,0.25);cursor:pointer;transition:all .4s}
+.dot.on{background:#a855f7;width:28px;border-radius:4px}
+
+/* RIGHT — panel */
+.panel{display:flex;flex-direction:column;justify-content:center;padding:40px 40px 40px 20px;gap:20px}
+.pcard{background:rgba(8,4,25,0.7);border:1px solid rgba(168,85,247,0.14);border-radius:12px;padding:20px;backdrop-filter:blur(10px)}
+.ptitle{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#9333ea;font-weight:700;margin-bottom:14px}
+.pbig{font-family:'Orbitron',monospace;font-size:30px;font-weight:900;color:#fff;line-height:1}
+.pbig span{color:#e879f9}
+.psub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;line-height:1.6}
+.stream{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.srow{display:flex;gap:10px}
+.snum{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:1px;transition:color .4s,opacity .4s}
+.snum.hot{color:#e879f9}.snum.warm{color:#a855f7}.snum.dim{color:rgba(168,85,247,0.2)}
+.sub-wrap{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.sub-input{background:rgba(255,255,255,0.05);border:1px solid rgba(168,85,247,0.2);border-radius:7px;padding:11px 14px;color:#fff;font-size:13px;outline:none;font-family:inherit;transition:border-color .3s}
+.sub-input::placeholder{color:rgba(255,255,255,0.2)}
+.sub-input:focus{border-color:#a855f7}
+.sub-btn{background:linear-gradient(135deg,#9333ea,#db2777);border:none;color:#fff;padding:11px;border-radius:7px;font-weight:600;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:inherit}
+.socials{display:flex;gap:18px;margin-top:6px}
+.soc{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2px;cursor:pointer;transition:color .3s}
+.soc:hover{color:#e879f9}
+
+/* ── FEATURES SECTION ── */
+.features{position:relative;z-index:10;padding:80px 80px;background:rgba(4,2,15,0.8);border-top:1px solid rgba(168,85,247,0.1)}
+.section-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#a855f7;text-align:center;margin-bottom:16px}
+.section-title{font-family:'Orbitron',monospace;font-size:32px;font-weight:700;text-align:center;color:#fff;margin-bottom:56px}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto}
+.fcard{background:rgba(12,6,30,0.8);border:1px solid rgba(168,85,247,0.12);border-radius:16px;padding:32px 28px;transition:border-color .3s,transform .3s}
+.fcard:hover{border-color:rgba(168,85,247,0.35);transform:translateY(-4px)}
+.ficon{width:48px;height:48px;border-radius:12px;background:rgba(120,40,200,0.2);border:1px solid rgba(168,85,247,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px}
+.ftitle{font-size:16px;font-weight:700;color:#fff;margin-bottom:10px}
+.fdesc{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7}
+
+/* ── HOW IT WORKS ── */
+.how{position:relative;z-index:10;padding:80px;border-top:1px solid rgba(168,85,247,0.08)}
+.steps{display:flex;align-items:flex-start;gap:0;max-width:1100px;margin:0 auto;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:60px;right:60px;height:1px;background:linear-gradient(90deg,transparent,rgba(168,85,247,0.4),rgba(236,72,153,0.4),transparent)}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 20px;position:relative;z-index:1}
+.step-num{width:56px;height:56px;border-radius:50%;background:rgba(12,6,30,0.9);border:2px solid rgba(168,85,247,0.5);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#e879f9;margin-bottom:20px;position:relative}
+.step-num::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(168,85,247,0.15)}
+.step h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px}
+.step p{font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:10;padding:24px 48px;display:flex;align-items:center;gap:32px;border-top:1px solid rgba(168,85,247,0.1);background:rgba(4,2,15,0.7)}
+.status{display:flex;align-items:center;gap:8px;font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase}
+.pulse{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.cities{display:flex;gap:20px;margin-left:auto}
+.cities span{font-size:10px;color:rgba(255,255,255,0.15);letter-spacing:2px;text-transform:uppercase}
+.copy-right{font-size:10px;color:rgba(255,255,255,0.15)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  .hero{grid-template-columns:1fr 400px}
+  .panel{display:none}
+  #hud{width:380px;height:380px}
+}
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .hud-wrap{padding:100px 20px 20px}
+  #hud{width:280px;height:280px}
+  .copy{padding:20px 24px 48px}
+  h1{font-size:32px}
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .features{padding:60px 20px}
+  .feature-grid{grid-template-columns:1fr}
+  .how{padding:60px 20px}
+  .steps{flex-direction:column;align-items:center}
+  .steps::before{display:none}
+  footer{padding:20px;flex-wrap:wrap;gap:12px}
+  .cities{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="galaxy"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">STAY<span>EASE</span></div>
+  <div class="nav-links">
+    <a href="#">Home</a>
+    <a href="#">Properties</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </div>
+  <button class="nav-btn">Get Started →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hud-wrap">
+    <canvas id="hud" width="520" height="520"></canvas>
+  </div>
+
+  <div class="copy">
+    <div class="eyebrow">Next-Gen Co-Living Platform</div>
+    <h1>FIND YOUR<br/><span class="accent">PERFECT</span>SPACE</h1>
+    <p class="desc">Discover premium PG &amp; co-living spaces across India. <strong>Instant booking, smart management, zero hassle.</strong></p>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">2,400+</div><div class="stat-lbl">Properties</div></div>
+      <div class="stat"><div class="stat-val">18K+</div><div class="stat-lbl">Happy Tenants</div></div>
+      <div class="stat"><div class="stat-val">12</div><div class="stat-lbl">Cities</div></div>
+      <div class="stat"><div class="stat-val">98%</div><div class="stat-lbl">Satisfaction</div></div>
+    </div>
+    <div class="btns">
+      <button class="btn-main">Explore Properties</button>
+      <button class="btn-ghost">Owner Login →</button>
+    </div>
+    <div class="dots">
+      <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="pcard">
+      <div class="ptitle">Live Occupancy</div>
+      <div class="pbig"><span id="occ">87</span>%</div>
+      <div class="psub">Platform-wide · Real-time</div>
+      <div class="stream" id="stream"></div>
+    </div>
+    <div class="pcard">
+      <div class="ptitle">Futuristic Living</div>
+      <div class="pbig" style="font-size:18px;line-height:1.3">SMART<br/><span>SPACES</span></div>
+      <div class="psub" style="margin-top:8px">AI-powered matching, biometric access, community events — living redefined for 2026.</div>
+    </div>
+    <div class="pcard">
+      <div class="ptitle">Stay Updated</div>
+      <div class="sub-wrap">
+        <input class="sub-input" type="email" placeholder="Enter your email"/>
+        <button class="sub-btn">Subscribe</button>
+      </div>
+      <div class="socials">
+        <span class="soc">FB</span><span class="soc">IN</span><span class="soc">TW</span><span class="soc">IG</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">Why StayEase</div>
+  <div class="section-title">Everything You Need</div>
+  <div class="feature-grid">
+    <div class="fcard"><div class="ficon">🏠</div><div class="ftitle">Smart Room Search</div><div class="fdesc">Filter by city, budget, gender preference, and amenities. Find your perfect match in seconds.</div></div>
+    <div class="fcard"><div class="ficon">💳</div><div class="ftitle">Seamless Payments</div><div class="fdesc">Pay rent via UPI, card, or net banking. Auto reminders, instant receipts, zero late fees stress.</div></div>
+    <div class="fcard"><div class="ficon">🔧</div><div class="ftitle">Service Requests</div><div class="fdesc">Raise maintenance requests in one tap. Real-time tracking from open to resolved — fully transparent.</div></div>
+    <div class="fcard"><div class="ficon">🍽️</div><div class="ftitle">Food & Community</div><div class="fdesc">Daily meal menus, event RSVPs, announcements — a thriving community at your fingertips.</div></div>
+    <div class="fcard"><div class="ficon">📊</div><div class="ftitle">Owner Analytics</div><div class="fdesc">Revenue charts, occupancy tracking, tenant management — full control for property owners.</div></div>
+    <div class="fcard"><div class="ficon">🛡️</div><div class="ftitle">KYC Verified</div><div class="fdesc">Aadhaar & PAN verification built-in. Safe, secure, and compliant for every tenant and owner.</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="section-label">Process</div>
+  <div class="section-title">How It Works</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><h3>Search</h3><p>Filter properties by city, budget &amp; amenities</p></div>
+    <div class="step"><div class="step-num">02</div><h3>Book</h3><p>Schedule a visit or instant-book online</p></div>
+    <div class="step"><div class="step-num">03</div><h3>Move In</h3><p>Complete KYC, sign digitally, pay deposit</p></div>
+    <div class="step"><div class="step-num">04</div><h3>Live Smart</h3><p>Pay rent, raise requests, join community</p></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="status"><div class="pulse"></div>All Systems Online</div>
+  <div class="cities">
+    <span>Bangalore</span><span>Hyderabad</span><span>Pune</span><span>Mumbai</span><span>Chennai</span><span>Delhi</span>
+  </div>
+  <div class="copy-right">© 2026 StayEase</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════
+// GALAXY BACKGROUND
+// ═══════════════════════════════════════
+const gc=document.getElementById('galaxy'),gx=gc.getContext('2d');
+let W,H,stars=[],nebulas=[],mx=0,my=0,gf=0;
+
+function resize(){
+  W=gc.width=window.innerWidth;
+  H=gc.height=window.innerHeight;
+  stars=[];
+  for(let i=0;i<350;i++) stars.push({
+    x:Math.random()*W,y:Math.random()*H,
+    r:Math.random()*1.8+0.2,
+    a:Math.random()*0.7+0.2,
+    sp:Math.random()*0.12+0.03,
+    tw:Math.random()*Math.PI*2,
+    tws:Math.random()*0.025+0.008
+  });
+  nebulas=[
+    {x:W*.28,y:H*.4,rx:320,ry:220,c:'rgba(110,30,210,0.08)'},
+    {x:W*.72,y:H*.6,rx:240,ry:180,c:'rgba(200,0,120,0.055)'},
+    {x:W*.5,y:H*.15,rx:400,ry:140,c:'rgba(50,0,180,0.065)'},
+    {x:W*.85,y:H*.25,rx:160,ry:120,c:'rgba(168,85,247,0.04)'},
+  ];
+}
+
+function drawGalaxy(){
+  gx.clearRect(0,0,W,H);
+  const bg=gx.createRadialGradient(W/2,H*.4,0,W/2,H*.6,Math.max(W,H)*.9);
+  bg.addColorStop(0,'#130035');bg.addColorStop(.45,'#080020');bg.addColorStop(1,'#04020f');
+  gx.fillStyle=bg;gx.fillRect(0,0,W,H);
+  gf++;
+  nebulas.forEach(n=>{
+    gx.save();
+    gx.translate(n.x+Math.sin(gf*.0025)*40,n.y+Math.cos(gf*.0018)*25);
+    const rg=gx.createRadialGradient(0,0,0,0,0,n.rx);
+    rg.addColorStop(0,n.c);rg.addColorStop(1,'transparent');
+    gx.fillStyle=rg;gx.beginPath();gx.ellipse(0,0,n.rx,n.ry,0,0,Math.PI*2);gx.fill();
+    gx.restore();
+  });
+  const dmx=(mx/W-.5)*.25,dmy=(my/H-.5)*.25;
+  stars.forEach(s=>{
+    s.tw+=s.tws;
+    const alpha=s.a*(.55+.45*Math.sin(s.tw));
+    const px=(s.x+gf*s.sp*.5+dmx*s.sp*80+W)%W;
+    const py=(s.y+dmy*s.sp*50+Math.sin(gf*s.sp*.08)*.6+H)%H;
+    gx.beginPath();gx.arc(px,py,s.r,0,Math.PI*2);
+    gx.fillStyle=`rgba(255,255,255,${alpha})`;gx.fill();
+    if(s.r>1.3){
+      gx.strokeStyle=`rgba(200,150,255,${alpha*.35})`;gx.lineWidth=.5;
+      gx.beginPath();gx.moveTo(px-6,py);gx.lineTo(px+6,py);gx.stroke();
+      gx.beginPath();gx.moveTo(px,py-6);gx.lineTo(px,py+6);gx.stroke();
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+// HUD RINGS
+// ═══════════════════════════════════════
+const hc=document.getElementById('hud'),hx=hc.getContext('2d');
+const CX=260,CY=260;
+let hf=0;
+
+const rings=[
+  {r:215,w:1.2,sp:.0025,dash:[14,8],col:'rgba(168,85,247,.55)',glow:true},
+  {r:198,w:.7,sp:-.004,dash:[4,22],col:'rgba(236,72,153,.35)',glow:false},
+  {r:178,w:1.8,sp:.007,dash:[32,6,6,6],col:'rgba(192,132,252,.65)',glow:true},
+  {r:155,w:.8,sp:-.0035,dash:[8,18],col:'rgba(168,85,247,.3)',glow:false},
+  {r:132,w:1.4,sp:.011,dash:[22,6],col:'rgba(249,168,212,.45)',glow:true},
+  {r:105,w:.7,sp:-.008,dash:[6,14],col:'rgba(167,139,250,.35)',glow:false},
+  {r:80,w:1.8,sp:.014,dash:[16,5],col:'rgba(236,72,153,.55)',glow:true},
+  {r:54,w:.9,sp:-.019,dash:[9,9],col:'rgba(192,132,252,.4)',glow:false},
+];
+
+const ticks=[
+  {r:218,n:72,len:5,w:.6,col:'rgba(168,85,247,.3)'},
+  {r:168,n:36,len:9,w:1,col:'rgba(236,72,153,.4)'},
+  {r:118,n:18,len:12,w:1.2,col:'rgba(192,132,252,.5)'},
+];
+
+const segs=[
+  {r:215,s:.08,e:.38,w:7,col:'rgba(255,255,255,.92)',sp:.005},
+  {r:215,s:.52,e:.68,w:7,col:'rgba(255,255,255,.75)',sp:.005},
+  {r:178,s:.78,e:.98,w:5,col:'rgba(255,255,255,.7)',sp:.007},
+  {r:132,s:.18,e:.48,w:4.5,col:'rgba(255,255,255,.88)',sp:-.009},
+  {r:80, s:.58,e:.88,w:5,col:'rgba(255,255,255,.92)',sp:.013},
+  {r:54, s:.02,e:.28,w:3,col:'rgba(249,168,212,.85)',sp:-.017},
+];
+const segA=segs.map(()=>0);
+
+const dpts=[
+  {r:155,a:.4,sz:5,col:'#e879f9',ph:0},
+  {r:178,a:1.9,sz:4,col:'#c084fc',ph:1.2},
+  {r:132,a:3.6,sz:6,col:'#f0abfc',ph:.6},
+  {r:105,a:5.1,sz:4,col:'#a855f7',ph:1.8},
+  {r:80, a:2.5,sz:3,col:'#e879f9',ph:.3},
+];
+
+function drawHUD(){
+  hx.clearRect(0,0,520,520);
+  hf++;
+  // ambient glow
+  const gl=hx.createRadialGradient(CX,CY,40,CX,CY,230);
+  gl.addColorStop(0,'rgba(100,30,200,.18)');gl.addColorStop(.6,'rgba(70,10,150,.07)');gl.addColorStop(1,'transparent');
+  hx.fillStyle=gl;hx.beginPath();hx.arc(CX,CY,230,0,Math.PI*2);hx.fill();
+
+  // rings
+  rings.forEach(rg=>{
+    hx.save();hx.translate(CX,CY);hx.rotate(rg.sp*hf);
+    hx.strokeStyle=rg.col;hx.lineWidth=rg.w;hx.setLineDash(rg.dash);
+    if(rg.glow){hx.shadowColor='rgba(168,85,247,.9)';hx.shadowBlur=10;}
+    hx.beginPath();hx.arc(0,0,rg.r,0,Math.PI*2);hx.stroke();
+    hx.setLineDash([]);hx.shadowBlur=0;hx.restore();
+  });
+
+  // ticks
+  ticks.forEach(t=>{
+    for(let i=0;i<t.n;i++){
+      const a=i/t.n*Math.PI*2;
+      hx.beginPath();
+      hx.moveTo(CX+Math.cos(a)*t.r,CY+Math.sin(a)*t.r);
+      hx.lineTo(CX+Math.cos(a)*(t.r+t.len),CY+Math.sin(a)*(t.r+t.len));
+      hx.strokeStyle=t.col;hx.lineWidth=t.w;hx.stroke();
+    }
+  });
+
+  // white arc segments
+  segs.forEach((sg,i)=>{
+    segA[i]+=sg.sp;
+    hx.save();
+    hx.strokeStyle=sg.col;hx.lineWidth=sg.w;hx.lineCap='round';
+    hx.shadowColor='rgba(255,255,255,.95)';hx.shadowBlur=16;
+    hx.beginPath();hx.arc(CX,CY,sg.r,(sg.s+segA[i])*Math.PI*2,(sg.e+segA[i])*Math.PI*2);hx.stroke();
+    hx.shadowBlur=0;hx.restore();
+  });
+
+  // data points
+  dpts.forEach(dp=>{
+    dp.a+=.005;dp.ph+=.07;
+    const px=CX+Math.cos(dp.a)*dp.r,py=CY+Math.sin(dp.a)*dp.r;
+    const pulse=1+.35*Math.sin(dp.ph);
+    hx.beginPath();hx.arc(px,py,dp.sz*pulse,0,Math.PI*2);
+    hx.fillStyle=dp.col;hx.shadowColor=dp.col;hx.shadowBlur=18;hx.fill();hx.shadowBlur=0;
+  });
+
+  // center core
+  const core=hx.createRadialGradient(CX,CY,0,CX,CY,38);
+  core.addColorStop(0,'rgba(255,255,255,.98)');
+  core.addColorStop(.35,'rgba(240,171,252,.75)');
+  core.addColorStop(.7,'rgba(168,85,247,.3)');
+  core.addColorStop(1,'transparent');
+  hx.fillStyle=core;hx.shadowColor='rgba(255,255,255,.9)';hx.shadowBlur=24;
+  hx.beginPath();hx.arc(CX,CY,38,0,Math.PI*2);hx.fill();hx.shadowBlur=0;
+
+  // crosshair
+  hx.strokeStyle='rgba(255,255,255,.45)';hx.lineWidth=1;hx.setLineDash([4,7]);
+  hx.beginPath();hx.moveTo(CX-20,CY);hx.lineTo(CX+20,CY);hx.stroke();
+  hx.beginPath();hx.moveTo(CX,CY-20);hx.lineTo(CX,CY+20);hx.stroke();
+  hx.setLineDash([]);
+
+  // corner brackets
+  const B=16;
+  [[CX-B,CY-B,5,0],[CX+B,CY-B,-5,0],[CX-B,CY+B,5,0],[CX+B,CY+B,-5,0]].forEach(([x,y,dx])=>{
+    const dy=dx<0?-5:5;
+    hx.strokeStyle='rgba(255,255,255,.6)';hx.lineWidth=1.5;
+    hx.beginPath();hx.moveTo(x,y);hx.lineTo(x+dx,y);hx.stroke();
+    hx.beginPath();hx.moveTo(x,y);hx.lineTo(x,y+(dx===5?5:-5));hx.stroke();
+  });
+}
+
+// ═══════════════════════════════════════
+// DATA STREAM
+// ═══════════════════════════════════════
+function buildStream(){
+  const el=document.getElementById('stream');
+  if(!el)return;
+  el.innerHTML='';
+  for(let r=0;r<4;r++){
+    const row=document.createElement('div');row.className='srow';
+    for(let c=0;c<4;c++){
+      const s=document.createElement('span');s.className='snum dim';
+      s.textContent=Math.floor(Math.random()*90000+10000);
+      row.appendChild(s);
+    }
+    el.appendChild(row);
+  }
+}
+buildStream();
+setInterval(()=>{
+  document.querySelectorAll('.snum').forEach(n=>{
+    if(Math.random()<.18){
+      n.textContent=Math.floor(Math.random()*90000+10000);
+      const r=Math.random();
+      n.className='snum '+(r<.12?'hot':r<.35?'warm':'dim');
+    }
+  });
+},110);
+
+// ═══════════════════════════════════════
+// DOTS CAROUSEL
+// ═══════════════════════════════════════
+let activeDot=0;
+setInterval(()=>{
+  const dots=document.querySelectorAll('.dot');
+  dots.forEach((d,i)=>d.classList.toggle('on',i===activeDot));
+  activeDot=(activeDot+1)%dots.length;
+},2400);
+
+// ═══════════════════════════════════════
+// OCCUPANCY COUNTER FLICKER
+// ═══════════════════════════════════════
+setInterval(()=>{
+  const el=document.getElementById('occ');
+  if(el) el.textContent=Math.floor(84+Math.random()*8);
+},3000);
+
+// ═══════════════════════════════════════
+// MOUSE PARALLAX
+// ═══════════════════════════════════════
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+
+// ═══════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}
+  });
+},{threshold:.15});
+document.querySelectorAll('.fcard,.step').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(30px)';
+  el.style.transition='opacity .6s ease, transform .6s ease';
+  observer.observe(el);
+});
+
+// ═══════════════════════════════════════
+// RAF LOOP
+// ═══════════════════════════════════════
+function loop(){drawGalaxy();drawHUD();requestAnimationFrame(loop);}
+window.addEventListener('resize',resize);
+resize();
+loop();
+</script>
+</body>
+</html>

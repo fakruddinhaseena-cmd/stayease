@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: stayease-api
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Add these in Render dashboard (secret values):
+      # DATABASE_URL
+      # JWT_SECRET
+      # FIREBASE_PROJECT_ID
+      # FIREBASE_PRIVATE_KEY
+      # FIREBASE_CLIENT_EMAIL
+      # FRONTEND_URL
