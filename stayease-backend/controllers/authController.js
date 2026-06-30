@@ -1,17 +1,21 @@
 const bcrypt    = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const { pool }  = require('../config/db');
+const { verifyFirebaseToken } = require('../config/firebase');
 const { generateToken } = require('../middleware/auth');
 
 // ─── EMAIL TRANSPORTER ────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host:   process.env.EMAIL_HOST   || 'smtp.gmail.com',
-  port:   parseInt(process.env.EMAIL_PORT || '587'),
-  secure: false,
+  port:   parseInt(process.env.EMAIL_PORT || '465'),
+  secure: parseInt(process.env.EMAIL_PORT || '465') === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  connectionTimeout: 15000,
+  greetingTimeout: 15000,
+  socketTimeout: 15000,
 });
 
 // In-memory OTP store  { email → { otp, expiresAt } }
@@ -201,6 +205,60 @@ const verifyEmailOTP = async (req, res) => {
   }
 };
 
+// ─── FIREBASE OTP VERIFY & LOGIN/REGISTER ────────────────────
+const verifyOTP = async (req, res) => {
+  try {
+    const { idToken, name, role } = req.body;
+    if (!idToken) return res.status(400).json({ success: false, message: 'Firebase ID token required' });
+
+    const firebaseResult = await verifyFirebaseToken(idToken);
+    if (!firebaseResult.success) return res.status(401).json({ success: false, message: 'Invalid OTP or token expired' });
+
+    const { uid, phone_number } = firebaseResult.data;
+    const phone = phone_number?.replace('+91', '').replace('+', '');
+    if (!phone) return res.status(400).json({ success: false, message: 'Phone number not found in token' });
+
+    let userResult = await pool.query(
+      'SELECT * FROM users WHERE phone = $1 OR firebase_uid = $2', [phone, uid]
+    );
+    let user = userResult.rows[0];
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      const ins = await pool.query(
+        `INSERT INTO users (name, phone, role, firebase_uid, status, kyc_status)
+         VALUES ($1, $2, $3, $4, 'active', 'pending')
+         RETURNING id, name, phone, email, role, status, kyc_status`,
+        [name || 'User', phone, role || 'tenant', uid]
+      );
+      user = ins.rows[0];
+    } else {
+      if (!user.firebase_uid) {
+        await pool.query('UPDATE users SET firebase_uid = $1 WHERE id = $2', [uid, user.id]);
+      }
+    }
+
+    const token = generateToken(user.id, user.role);
+
+    await pool.query(
+      `INSERT INTO audit_logs (user_id, action, entity_type, ip_address) VALUES ($1, $2, 'user', $3)`,
+      [user.id, isNewUser ? 'user_registered' : 'user_login', req.ip]
+    );
+
+    res.json({
+      success: true,
+      message: isNewUser ? 'Account created successfully' : 'Login successful',
+      token,
+      user: { id:user.id, name:user.name, email:user.email, phone:user.phone, role:user.role, status:user.status, kyc_status:user.kyc_status, photo_url:user.photo_url },
+      isNewUser,
+    });
+  } catch (err) {
+    console.error('OTP verify error:', err);
+    res.status(500).json({ success: false, message: 'Server error during authentication' });
+  }
+};
+
 // ─── EMAIL + PASSWORD LOGIN ───────────────────────────────────
 const emailLogin = async (req, res) => {
   try {
@@ -265,4 +323,4 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, emailLogin, sendEmailOTP, verifyEmailOTP, getMe, updateProfile };
+module.exports = { register, verifyOTP, emailLogin, sendEmailOTP, verifyEmailOTP, getMe, updateProfile };
